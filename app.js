@@ -4,10 +4,10 @@
 
   const SESSION_SECONDS = 120;
   const ZONES = [
-    "Oberkiefer – vorne",
-    "Oberkiefer – hinten",
-    "Unterkiefer – vorne",
-    "Unterkiefer – hinten",
+    "Oberkiefer rechts",
+    "Oberkiefer links",
+    "Unterkiefer rechts",
+    "Unterkiefer links",
   ];
   const ZONE_SECONDS = SESSION_SECONDS / ZONES.length;
 
