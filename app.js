@@ -1,6 +1,8 @@
 (function () {
   const SESSIONS_KEY = "brushlog_sessions";
   const ACTIVE_KEY = "brushlog_active_start";
+  const GEMINI_KEY = "brushlog_gemini_key";
+  const GEMINI_MODEL = "gemini-2.5-flash";
 
   const SESSION_SECONDS = 120;
   const ZONES = [
@@ -19,6 +21,8 @@
   const todayCountEl = document.getElementById("todayCount");
   const totalCountEl = document.getElementById("totalCount");
   const streakCountEl = document.getElementById("streakCount");
+  const jokeBtn = document.getElementById("jokeBtn");
+  const jokeText = document.getElementById("jokeText");
 
   let sessions = loadSessions();
   let activeStart = loadActiveStart();
@@ -165,6 +169,59 @@
     totalCountEl.textContent = sessions.length;
     streakCountEl.textContent = computeStreak();
   }
+
+  function getGeminiApiKey() {
+    let key = localStorage.getItem(GEMINI_KEY);
+    if (!key) {
+      key = prompt("Gib deinen Gemini API-Key ein (wird nur lokal in diesem Browser gespeichert):");
+      if (key) localStorage.setItem(GEMINI_KEY, key.trim());
+    }
+    return key;
+  }
+
+  async function tellJoke() {
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) return;
+
+    jokeBtn.disabled = true;
+    jokeText.textContent = "Denke nach …";
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: "Erzähl mir einen kurzen, kinderfreundlichen Witz auf Deutsch. Gib nur den Witz aus, keine Einleitung oder Erklärung." },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        if (res.status === 400 || res.status === 403) {
+          localStorage.removeItem(GEMINI_KEY);
+        }
+        throw new Error(`Gemini API Fehler: ${res.status}`);
+      }
+
+      const data = await res.json();
+      const joke = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      jokeText.textContent = joke || "Kein Witz erhalten. Versuch's nochmal.";
+    } catch {
+      jokeText.textContent = "Fehler beim Abrufen des Witzes. Bitte API-Key prüfen.";
+    } finally {
+      jokeBtn.disabled = false;
+    }
+  }
+
+  jokeBtn.addEventListener("click", tellJoke);
 
   toggleBtn.addEventListener("click", () => {
     if (activeStart === null) {
