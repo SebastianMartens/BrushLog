@@ -57,6 +57,13 @@ h1 {
   letter-spacing: 0.05em;
 }
 
+.zone {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-dark);
+  min-height: 1.4em;
+}
+
 .toggle-btn {
   border: none;
   border-radius: 999px;

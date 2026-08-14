@@ -2,7 +2,17 @@
   const SESSIONS_KEY = "brushlog_sessions";
   const ACTIVE_KEY = "brushlog_active_start";
 
+  const SESSION_SECONDS = 120;
+  const ZONES = [
+    "Oberkiefer – vorne",
+    "Oberkiefer – hinten",
+    "Unterkiefer – vorne",
+    "Unterkiefer – hinten",
+  ];
+  const ZONE_SECONDS = SESSION_SECONDS / ZONES.length;
+
   const elapsedEl = document.getElementById("elapsed");
+  const zoneEl = document.getElementById("zone");
   const toggleBtn = document.getElementById("toggleBtn");
   const statsBody = document.getElementById("statsBody");
   const emptyMsg = document.getElementById("emptyMsg");
@@ -42,7 +52,10 @@
   }
 
   function formatElapsed(ms) {
-    const totalSec = Math.floor(ms / 1000);
+    return formatSeconds(Math.floor(ms / 1000));
+  }
+
+  function formatSeconds(totalSec) {
     const m = String(Math.floor(totalSec / 60)).padStart(2, "0");
     const s = String(totalSec % 60).padStart(2, "0");
     return `${m}:${s}`;
@@ -63,7 +76,14 @@
 
   function tick() {
     if (activeStart === null) return;
-    elapsedEl.textContent = formatElapsed(Date.now() - activeStart);
+    const elapsedSec = Math.floor((Date.now() - activeStart) / 1000);
+    const remainingSec = Math.max(0, SESSION_SECONDS - elapsedSec);
+    elapsedEl.textContent = formatSeconds(remainingSec);
+    const zoneIndex = Math.min(ZONES.length - 1, Math.floor(elapsedSec / ZONE_SECONDS));
+    zoneEl.textContent = ZONES[zoneIndex];
+    if (elapsedSec >= SESSION_SECONDS) {
+      stopTimer();
+    }
   }
 
   function startTimer() {
@@ -82,7 +102,8 @@
     setActiveStart(null);
     clearInterval(tickHandle);
     tickHandle = null;
-    elapsedEl.textContent = "00:00";
+    elapsedEl.textContent = formatSeconds(SESSION_SECONDS);
+    zoneEl.textContent = " ";
     toggleBtn.textContent = "Zähneputzen starten";
     toggleBtn.classList.remove("running");
     render();
