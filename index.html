@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrushLog</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card">
+    <h1>🦷 BrushLog</h1>
+
+    <section class="timer-section">
+      <div id="elapsed" class="elapsed">00:00</div>
+      <button id="toggleBtn" class="toggle-btn">Start Brushing</button>
+    </section>
+
+    <section class="stats-section">
+      <div class="stats-summary">
+        <div class="stat">
+          <span id="todayCount" class="stat-value">0</span>
+          <span class="stat-label">today</span>
+        </div>
+        <div class="stat">
+          <span id="totalCount" class="stat-value">0</span>
+          <span class="stat-label">total</span>
+        </div>
+        <div class="stat">
+          <span id="streakCount" class="stat-value">0</span>
+          <span class="stat-label">day streak</span>
+        </div>
+      </div>
+
+      <table id="statsTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Duration</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="statsBody">
+        </tbody>
+      </table>
+      <p id="emptyMsg" class="empty-msg">No brushing sessions recorded yet.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
