@@ -49,11 +49,11 @@
   }
 
   function formatTime(ts) {
-    return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return new Date(ts).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
   }
 
   function formatDate(ts) {
-    return new Date(ts).toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
+    return new Date(ts).toLocaleDateString("de-DE", { year: "numeric", month: "short", day: "numeric" });
   }
 
   function dateKey(ts) {
@@ -68,7 +68,7 @@
 
   function startTimer() {
     setActiveStart(Date.now());
-    toggleBtn.textContent = "Stop Brushing";
+    toggleBtn.textContent = "Zähneputzen stoppen";
     toggleBtn.classList.add("running");
     tick();
     tickHandle = setInterval(tick, 1000);
@@ -83,7 +83,7 @@
     clearInterval(tickHandle);
     tickHandle = null;
     elapsedEl.textContent = "00:00";
-    toggleBtn.textContent = "Start Brushing";
+    toggleBtn.textContent = "Zähneputzen starten";
     toggleBtn.classList.remove("running");
     render();
   }
@@ -128,7 +128,7 @@
         <td>${formatTime(session.start)}</td>
         <td>${formatTime(session.end)}</td>
         <td>${duration}</td>
-        <td><button class="delete-btn" title="Delete" data-index="${realIndex}">✕</button></td>
+        <td><button class="delete-btn" title="Löschen" data-index="${realIndex}">✕</button></td>
       `;
       statsBody.appendChild(tr);
     });
@@ -154,7 +154,7 @@
   });
 
   if (activeStart !== null) {
-    toggleBtn.textContent = "Stop Brushing";
+    toggleBtn.textContent = "Zähneputzen stoppen";
     toggleBtn.classList.add("running");
     tick();
     tickHandle = setInterval(tick, 1000);
