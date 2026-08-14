@@ -92,8 +92,20 @@ h1 {
   background: #b8453d;
 }
 
+.music-section {
+  margin-top: 1.5rem;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.music-section iframe {
+  display: block;
+}
+
 .stats-section {
   margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
 }
 
 .stats-summary {
