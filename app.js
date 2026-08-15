@@ -13,6 +13,9 @@
   ];
   const ZONE_SECONDS = SESSION_SECONDS / ZONES.length;
 
+  const REQUIRED_SESSIONS = 2;
+  const WEEK_DAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+
   const elapsedEl = document.getElementById("elapsed");
   const zoneEl = document.getElementById("zone");
   const toggleBtn = document.getElementById("toggleBtn");
@@ -21,6 +24,9 @@
   const todayCountEl = document.getElementById("todayCount");
   const totalCountEl = document.getElementById("totalCount");
   const streakCountEl = document.getElementById("streakCount");
+  const weekOverviewEl = document.getElementById("weekOverview");
+  const catchupBannerEl = document.getElementById("catchupBanner");
+  const catchupCountEl = document.getElementById("catchupCount");
 
   let sessions = loadSessions();
   let activeStart = loadActiveStart();
@@ -119,13 +125,17 @@
 
   function computeStreak() {
     if (sessions.length === 0) return 0;
-    const days = new Set(sessions.map((s) => dateKey(s.start)));
+    const counts = {};
+    sessions.forEach((s) => {
+      const k = dateKey(s.start);
+      counts[k] = (counts[k] || 0) + 1;
+    });
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
     while (true) {
       const key = `${cursor.getFullYear()}-${cursor.getMonth()}-${cursor.getDate()}`;
-      if (days.has(key)) {
+      if ((counts[key] || 0) >= REQUIRED_SESSIONS) {
         streak++;
         cursor.setDate(cursor.getDate() - 1);
       } else {
@@ -133,6 +143,55 @@
       }
     }
     return streak;
+  }
+
+  function renderWeekOverview() {
+    const counts = {};
+    sessions.forEach((s) => {
+      const k = dateKey(s.start);
+      counts[k] = (counts[k] || 0) + 1;
+    });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let totalCatchup = 0;
+
+    weekOverviewEl.innerHTML = "";
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const k = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      const count = counts[k] || 0;
+      const isToday = i === 0;
+      const deficit = Math.max(0, REQUIRED_SESSIONS - count);
+      totalCatchup += deficit;
+
+      const col = document.createElement("div");
+      col.className = "week-day" + (isToday ? " week-day--today" : "");
+
+      const label = document.createElement("span");
+      label.className = "week-day__label";
+      label.textContent = WEEK_DAYS[d.getDay()];
+
+      const dots = document.createElement("span");
+      dots.className = "week-day__dots";
+      for (let j = 0; j < REQUIRED_SESSIONS; j++) {
+        const dot = document.createElement("span");
+        dot.className = "week-dot" + (j < count ? " week-dot--done" : "");
+        dots.appendChild(dot);
+      }
+
+      col.appendChild(label);
+      col.appendChild(dots);
+      weekOverviewEl.appendChild(col);
+    }
+
+    if (totalCatchup > 0) {
+      catchupCountEl.textContent = totalCatchup;
+      catchupBannerEl.style.display = "flex";
+    } else {
+      catchupBannerEl.style.display = "none";
+    }
   }
 
   function render() {
@@ -166,6 +225,7 @@
     todayCountEl.textContent = sessions.filter((s) => dateKey(s.start) === todayKey).length;
     totalCountEl.textContent = sessions.length;
     streakCountEl.textContent = computeStreak();
+    renderWeekOverview();
   }
 
   function getGeminiApiKey() {
